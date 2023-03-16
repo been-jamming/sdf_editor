@@ -7,16 +7,16 @@
 <select size = "10" id = "elements_menu" onchange = "tool_select(this.selectedIndex);" style = "width: 20%; height: 80%; position: absolute; top: 0px; right: 0px;">
 </select>
 <div class = "menu" id = "sphere_menu" style = "width: 100%; height: 20%; position: absolute; bottom: 0px; left: 0px; display: none;">
-	<input type = "range" min = "0" max = "5" step = "0.05" value = "1" id = "sphere_radius_slider" onchange = "active_element.r = parseFloat(this.value); document.getElementById('sphere_radius_input').value = this.value; recompile_shaders(); render();">
+	<input type = "range" min = "0" max = "5" step = "0.05" value = "1" id = "sphere_radius_slider" oninput = "active_element.r = parseFloat(this.value); document.getElementById('sphere_radius_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_radius_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.r = parseFloat(this.value); document.getElementById('sphere_radius_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
 	<br>
-	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_x_slider" onchange = "active_element.x = parseFloat(this.value); document.getElementById('sphere_x_input').value = this.value; recompile_shaders(); render();">
+	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_x_slider" oninput = "active_element.x = parseFloat(this.value); document.getElementById('sphere_x_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_x_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.x = parseFloat(this.value); document.getElementById('sphere_x_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
 	<br>
-	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_y_slider" onchange = "active_element.y = parseFloat(this.value); document.getElementById('sphere_y_input').value = this.value; recompile_shaders(); render();">
+	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_y_slider" oninput = "active_element.y = parseFloat(this.value); document.getElementById('sphere_y_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_y_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.y = parseFloat(this.value); document.getElementById('sphere_y_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
 	<br>
-	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_z_slider" onchange = "active_element.z = parseFloat(this.value); document.getElementById('sphere_z_input').value = this.value; recompile_shaders(); render();">
+	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_z_slider" oninput = "active_element.z = parseFloat(this.value); document.getElementById('sphere_z_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_z_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.z = parseFloat(this.value); document.getElementById('sphere_z_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
 </div>
 <script src = "webgl.js">
