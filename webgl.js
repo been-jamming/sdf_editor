@@ -147,6 +147,7 @@ function initialize_canvas(){
 function initialize(){
 	subassemblies.push(new Subassembly("SDF"));
 	subassemblies[0].children.push(new Sphere(0, 0, 4, 1));
+	subassemblies[0].children.push(new Sphere(0, 0, 4, 1));
 	render_options();
 
 	initialize_canvas();
@@ -275,6 +276,12 @@ function update_menu(element){
 	if(element.type == "sphere"){
 		document.getElementById("sphere_radius_slider").value = active_element.r;
 		document.getElementById("sphere_radius_input").value = active_element.r;
+		document.getElementById("sphere_x_slider").value = active_element.x;
+		document.getElementById("sphere_x_input").value = active_element.x;
+		document.getElementById("sphere_y_slider").value = active_element.y;
+		document.getElementById("sphere_y_input").value = active_element.y;
+		document.getElementById("sphere_z_slider").value = active_element.z;
+		document.getElementById("sphere_z_input").value = active_element.z;
 		document.getElementById("sphere_menu").style.display = "block";
 	}
 }
