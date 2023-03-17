@@ -4,8 +4,20 @@
 </header>
 <body>
 <canvas id = "glcanvas" style = "width: 80%; height: 80%; position: absolute; top: 0px; left: 0px;"></canvas>
-<select size = "10" id = "elements_menu" onchange = "tool_select(this.selectedIndex);" style = "width: 20%; height: 80%; position: absolute; top: 0px; right: 0px;">
+<select size = "10" id = "elements_menu" onchange = "tool_select(this.selectedIndex);" style = "width: 20%; height: 40%; position: absolute; top: 0px; right: 0px;">
 </select>
+<div class = "main_menu" style = "width: 20%; height: 40%; position: absolute; top: 40%; right: 0px;">
+<button onclick = "delete_element(active_element);">Delete Element</button>
+<br>
+<select id = "element_select_add">
+	<option value = "sphere">sphere</option>
+	<option value = "union">union</option>
+	<option value = "intersection">intersection</option>
+</select>
+<button onclick = "add_element(document.getElementById('element_select_add').value);">Add Element</button>
+<br>
+</div>
+
 <div class = "menu" id = "sphere_menu" style = "width: 100%; height: 20%; position: absolute; bottom: 0px; left: 0px; display: none;">
 	<input type = "range" min = "0" max = "5" step = "0.05" value = "1" id = "sphere_radius_slider" oninput = "active_element.r = parseFloat(this.value); document.getElementById('sphere_radius_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_radius_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.r = parseFloat(this.value); document.getElementById('sphere_radius_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
@@ -19,6 +31,7 @@
 	<input type = "range" min = "-5" max = "5" step = "0.05" value = "1" id = "sphere_z_slider" oninput = "active_element.z = parseFloat(this.value); document.getElementById('sphere_z_input').value = this.value; recompile_shaders(); render();">
 	<input type = "text" id = "sphere_z_input" value = "1" onchange = "if(!isNaN(this.value)){active_element.z = parseFloat(this.value); document.getElementById('sphere_z_slider').value = parseFloat(this.value); recompile_shaders(); render();}">
 </div>
+
 <script src = "webgl.js">
 </script>
 </body>

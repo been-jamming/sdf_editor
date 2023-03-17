@@ -146,8 +146,8 @@ function initialize_canvas(){
 
 function initialize(){
 	subassemblies.push(new Subassembly("SDF"));
-	subassemblies[0].children.push(new Sphere(0, 0, 4, 1));
-	subassemblies[0].children.push(new Sphere(0, 0, 4, 1));
+	subassemblies[0].children.push(new Sphere(0, 0, 4, 1, subassemblies[0]));
+	active_element = subassemblies[0];
 	render_options();
 
 	initialize_canvas();
@@ -179,14 +179,65 @@ function render(){
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
 
+function delete_element(element){
+	if((element.container && element.children.length > 0) || element.id == 0){
+		return;
+	}
+
+	for(var i = element.id + 1; i < global_id; i++){
+		elements[i].id--;
+	}
+	elements.splice(element.id, 1);
+	global_id--;
+
+	element.parent_element.children.splice(element.parent_element.children.indexOf(element), 1);
+
+	render_options();
+	if(element.parent_element.children.length == 0){
+		var selected_element = element.parent_element;
+	} else {
+		var selected_element = element.parent_element.children[element.parent_element.children.length - 1];
+	}
+	document.getElementById("elements_menu").value = selected_element.id;
+	update_menu(selected_element);
+	recompile_shaders();
+	render();
+}
+
+function add_element(element_name){
+	var parent_element = active_element;
+	var new_element;
+
+	while(!parent_element.container){
+		parent_element = parent_element.parent_element;
+	}
+
+	if(element_name == "sphere"){
+		new_element = new Sphere(0, 0, 4, 1, parent_element);
+		parent_element.children.push(new_element);
+	} else if(element_name == "union"){
+		new_element = new Union(parent_element);
+		parent_element.children.push(new_element);
+	} else if(element_name == "intersection"){
+		new_element = new Intersection(parent_element);
+		parent_element.children.push(new_element);
+	}
+	render_options();
+	document.getElementById("elements_menu").value = new_element.id;
+	update_menu(new_element);
+	recompile_shaders();
+	render();
+}
+
 function main(){
 	initialize();
 	render();
 }
 
-function Subassembly(name){
+function Subassembly(name, parent_element){
 	this.children = [];
 	this.name = name;
+	this.parent_element = null;
 	this.container = true;
 	this.type = "subassembly";
 	this.id = global_id;
@@ -194,20 +245,22 @@ function Subassembly(name){
 	global_id++;
 }
 
-function SubassemblyInstance(name){
+function SubassemblyInstance(name, parent_element){
 	this.container = false;
 	this.name = name;
+	this.parent_element = parent_element;
 	this.type = "subassembly_instance";
 	this.id = global_id;
 	elements[this.id] = this;
 	global_id++;
 }
 
-function Sphere(x, y, z, r){
+function Sphere(x, y, z, r, parent_element){
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.r = r;
+	this.parent_element = parent_element;
 	this.container = false;
 	this.type = "sphere";
 	this.id = global_id;
@@ -215,7 +268,8 @@ function Sphere(x, y, z, r){
 	global_id++;
 }
 
-function Union(){
+function Union(parent_element){
+	this.parent_element = parent_element;
 	this.children = [];
 	this.container = true;
 	this.type = "union";
@@ -224,7 +278,8 @@ function Union(){
 	global_id++;
 }
 
-function Intersection(){
+function Intersection(parent_element){
+	this.parent_element = parent_element;
 	this.children = [];
 	this.container = true;
 	this.type = "intersection";
@@ -287,8 +342,7 @@ function update_menu(element){
 }
 
 function tool_select(select_id){
-	selected_element = elements[parseInt(document.getElementById("elements_menu").childNodes[select_id].value)];
-	console.log(selected_element.id);
+	var selected_element = elements[parseInt(document.getElementById("elements_menu").childNodes[select_id].value)];
 	update_menu(selected_element);
 }
 
@@ -331,9 +385,32 @@ function num_flt_str(num){
 function compile_element(element){
 	if(element.type == "sphere"){
 		return `(length(p - vec3(${num_flt_str(element.x)}, ${num_flt_str(element.y)}, ${num_flt_str(element.z)})) - ${num_flt_str(element.r)})`;
+	} else if(element.type == "union" && element.children.length > 1){
+		var output = "";
+
+		for(var i = 0; i < element.children.length - 1; i++){
+			output += `min(${compile_element(element.children[i])}, `;
+		}
+
+		output += compile_element(element.children[element.children.length - 1]) + ")".repeat(element.children.length - 1);
+
+		return output;
+	} else if(element.type == "union" && element.children.length == 1){
+		return compile_element(element.children[0]);
+	} else if(element.type == "intersection" && element.children.length > 1){
+		var output = "";
+
+		for(var i = 0; i < element.children.length - 1; i++){
+			output += `max(${compile_element(element.children[i])}, `;
+		}
+
+		output += compile_element(element.children[element.children.length - 1]) + ")".repeat(element.children.length - 1);
+		return output;
+	} else if(element.type == "intersection" && element.children.length == 1){
+		return compile_element(element.children[0]);
 	}
 
-	return "";
+	return "1000.0";
 }
 
 main();
