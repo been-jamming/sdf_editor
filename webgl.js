@@ -74,7 +74,7 @@ void main(){
 	vec3 intersect_pos;
 	vec3 shadow_pos;
 	vec3 normal;
-	vec3 light_direc = normalize(vec3(1.0, 0.0, 0.2));
+	vec3 light_direc = normalize(vec3(1.0, 0.0, -0.8));
 
 	get_camera_ray(uv, pos, direction);
 
@@ -108,6 +108,7 @@ function load_shader(gl, type, source){
 	gl.shaderSource(shader, source);
 	gl.compileShader(shader);
 	if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+		console.log(source);
 		console.log("An error occurred while compiling a shader: " + gl.getShaderInfoLog(shader));
 		gl.deleteShader(shader);
 		return null;
@@ -215,6 +216,9 @@ function add_element(element_name){
 	if(element_name == "sphere"){
 		new_element = new Sphere(0, 0, 4, 1, parent_element);
 		parent_element.children.push(new_element);
+	} else if(element_name == "box"){
+		new_element = new Box(0, 0, 4, 1, 1, 1, parent_element);
+		parent_element.children.push(new_element);
 	} else if(element_name == "union"){
 		new_element = new Union(parent_element);
 		parent_element.children.push(new_element);
@@ -263,6 +267,21 @@ function Sphere(x, y, z, r, parent_element){
 	this.parent_element = parent_element;
 	this.container = false;
 	this.type = "sphere";
+	this.id = global_id;
+	elements[this.id] = this;
+	global_id++;
+}
+
+function Box(x, y, z, w, h, d, parent_element){
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
+	this.h = h;
+	this.d = d;
+	this.parent_element = parent_element;
+	this.container = false;
+	this.type = "box";
 	this.id = global_id;
 	elements[this.id] = this;
 	global_id++;
@@ -338,6 +357,20 @@ function update_menu(element){
 		document.getElementById("sphere_z_slider").value = active_element.z;
 		document.getElementById("sphere_z_input").value = active_element.z;
 		document.getElementById("sphere_menu").style.display = "block";
+	} else if(element.type == "box"){
+		document.getElementById("box_width_slider").value = active_element.w;
+		document.getElementById("box_width_input").value = active_element.w;
+		document.getElementById("box_height_slider").value = active_element.h;
+		document.getElementById("box_height_input").value = active_element.h;
+		document.getElementById("box_depth_slider").value = active_element.d;
+		document.getElementById("box_depth_input").value = active_element.d;
+		document.getElementById("box_x_slider").value = active_element.x;
+		document.getElementById("box_x_input").value = active_element.x;
+		document.getElementById("box_y_slider").value = active_element.y;
+		document.getElementById("box_y_input").value = active_element.y;
+		document.getElementById("box_z_slider").value = active_element.z;
+		document.getElementById("box_z_input").value = active_element.z;
+		document.getElementById("box_menu").style.display = "block";
 	}
 }
 
@@ -385,6 +418,8 @@ function num_flt_str(num){
 function compile_element(element){
 	if(element.type == "sphere"){
 		return `(length(p - vec3(${num_flt_str(element.x)}, ${num_flt_str(element.y)}, ${num_flt_str(element.z)})) - ${num_flt_str(element.r)})`;
+	} else if(element.type == "box"){
+		return `length(vec3(max(0.0, abs(p.x - ${num_flt_str(element.x)}) - ${num_flt_str(element.w/2)}), max(0.0, abs(p.y - ${num_flt_str(element.y)}) - ${num_flt_str(element.h/2)}), max(0.0, abs(p.z - ${num_flt_str(element.z)}) - ${num_flt_str(element.d/2)}))) + min(0.0, max(max(abs(p.x - ${num_flt_str(element.x)}) - ${num_flt_str(element.w/2)}, abs(p.y - ${num_flt_str(element.y)}) - ${num_flt_str(element.h/2)}), abs(p.z - ${num_flt_str(element.z)}) - ${num_flt_str(element.d/2)}))`;
 	} else if(element.type == "union" && element.children.length > 1){
 		var output = "";
 
